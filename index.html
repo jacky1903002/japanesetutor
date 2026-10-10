@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>和風日語雲端特訓 - 日式禪風線上學習</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --zen-bg: #f9f8f6;
+      --zen-card: #ffffff;
+      --zen-border: #e2ded8;
+      --zen-dark: #2c2a29;
+      --zen-green: #556b2f;
+      --zen-green-hover: #455725;
+      --zen-accent: #bc8f8f;
+      --zen-gold: #d4af37;
+      --zen-shadow: rgba(44, 42, 41, 0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "PingFang TC", "Hiragino Sans GB", "Microsoft JhengHei", sans-serif; }
+    body { background-color: var(--zen-bg); color: var(--zen-dark); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+
+    /* 手機與網頁雙模式支援 */
+    @media (min-width: 768px) {
+      body.mobile-mode main {
+        max-width: 420px !important;
+        margin: 24px auto;
+        background: var(--zen-card);
+        border: 1px solid var(--zen-border);
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 10px 30px var(--zen-shadow);
+      }
+    }
+
+    header {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--zen-border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo { font-size: 1.2rem; font-weight: 700; color: var(--zen-green); display: flex; align-items: center; gap: 8px; letter-spacing: 1px; }
+    
+    .status-bar { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 0.9rem; }
+    .status-item { display: flex; align-items: center; gap: 6px; }
+    .xp { color: var(--zen-gold); }
+
+    main { max-width: 900px; width: 100%; margin: 24px auto; padding: 0 16px; flex: 1; transition: all 0.3s ease; }
+
+    .nav-tabs { display: flex; gap: 8px; margin-bottom: 24px; justify-content: center; flex-wrap: wrap; }
+    .tab-btn {
+      background: var(--zen-card);
+      border: 1px solid var(--zen-border);
+      color: #666;
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tab-btn:hover { background: #f2efe9; }
+    .tab-btn.active {
+      background: var(--zen-green);
+      color: white;
+      border-color: var(--zen-green);
+      box-shadow: 0 4px 12px rgba(85, 107, 47, 0.2);
+    }
+
+    .card { background: var(--zen-card); border: 1px solid var(--zen-border); border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px var(--zen-shadow); margin-bottom: 24px; position: relative; }
+
+    .view { display: none; }
+    .view.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .btn-zen {
+      background: var(--zen-green);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-zen:hover { background: var(--zen-green-hover); }
+    .btn-zen:active { transform: scale(0.98); }
+
+    .btn-secondary {
+      background: white;
+      color: var(--zen-green);
+      border: 1px solid var(--zen-border);
+    }
+    .btn-secondary:hover { background: #f9f8f6; }
+
+    .badge-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .achievement-badge {
+      background: #faf8f5;
+      border: 1px solid var(--zen-border);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .achievement-badge.locked { filter: grayscale(1); opacity: 0.4; }
+    .achievement-badge:not(.locked) {
+      border-color: var(--zen-gold);
+      background: linear-gradient(135deg, #fffdf7 0%, #fff 100%);
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+    }
+    .badge-icon-box {
+      width: 48px; height: 48px; border-radius: 50%; background: white;
+      display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+      border: 1px solid var(--zen-border); margin-bottom: 4px; color: var(--zen-dark);
+    }
+    .achievement-badge:not(.locked) .badge-icon-box {
+      border-color: var(--zen-gold); background: #fff8e1; color: var(--zen-gold);
+    }
+    .badge-title { font-size: 0.95rem; font-weight: 700; color: var(--zen-dark); }
+    .badge-desc { font-size: 0.75rem; color: #777; }
+
+    .progress-bar-wrap { width: 100%; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin: 16px 0; }
+    .progress-bar-fill { height: 100%; background: var(--zen-green); width: 0%; transition: width 0.3s ease; border-radius: 4px; }
+
+    .hero-card-viewport {
+      background: white; border: 1px solid var(--zen-border); border-radius: 16px; padding: 24px;
+      min-height: 280px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 12px var(--zen-shadow);
+    }
+    .hero-word-header { display: flex; justify-content: space-between; align-items: center; }
+    .hero-word-title { font-size: 2.4rem; font-weight: 700; color: var(--zen-dark); letter-spacing: 2px; }
+    .hero-word-meaning { font-size: 1.3rem; color: var(--zen-green); font-weight: 600; margin-top: 6px; }
+    
+    .audio-btn {
+      width: 40px; height: 40px; border-radius: 50%; background: var(--zen-green); color: white;
+      border: none; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .audio-btn:hover { background: var(--zen-green-hover); }
+
+    .hero-example-box { background: #f6f5f2; border-left: 4px solid var(--zen-green); padding: 14px; border-radius: 8px; margin-top: 20px; }
+
+    .dots-container { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 16px 0; }
+    .dot {
+      width: 28px; height: 28px; border-radius: 8px; background: white; border: 1px solid var(--zen-border);
+      display: flex; align-items: center; justify-content: center; font-weight: 600; color: #666; cursor: pointer; font-size: 0.85rem;
+    }
+    .dot.active { background: var(--zen-green); color: white; border-color: var(--zen-green); }
+
+    .quiz-word-display { font-size: 2.2rem; font-weight: 700; color: var(--zen-dark); text-align: center; margin: 16px 0; letter-spacing: 2px; }
+    .options-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 16px; }
+    
+    .option-btn {
+      background: white; border: 1px solid var(--zen-border);
+      padding: 14px 18px; border-radius: 12px; color: var(--zen-dark); font-size: 1rem; font-weight: 600; text-align: left; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+      transition: all 0.2s;
+    }
+    .option-btn:hover { background: #f9f8f6; border-color: var(--zen-green); }
+    .option-btn.correct { background: #edf4e7 !important; border-color: var(--zen-green) !important; color: #3b5323 !important; }
+    .option-btn.wrong { background: #fdf2f2 !important; border-color: #d9534f !important; color: #a94442 !important; }
+
+    .feedback-footer {
+      position: fixed; bottom: 0; left: 0; width: 100%; padding: 18px 24px;
+      display: flex; justify-content: space-between; align-items: center; z-index: 200;
+      transform: translateY(100%); transition: transform 0.3s ease;
+    }
+    .feedback-footer.show { transform: translateY(0); }
+    .feedback-footer.correct-bg { background: #edf4e7; border-top: 1px solid var(--zen-green); color: #3b5323; }
+    .feedback-footer.wrong-bg { background: #fdf2f2; border-top: 1px solid #d9534f; color: #a94442; }
+
+    .input-field {
+      width: 100%; max-width: 320px; padding: 12px 16px; border: 1px solid var(--zen-border);
+      border-radius: 12px; font-size: 0.95rem; outline: none; margin: 6px 0; background: #fff;
+    }
+    .input-field:focus { border-color: var(--zen-green); }
+
+    #auth-modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(44, 42, 41, 0.5); backdrop-filter: blur(4px);
+      display: flex; justify-content: center; align-items: center; z-index: 9999;
+    }
+    .auth-box {
+      background: white; padding: 32px; border-radius: 24px; width: 380px; max-width: 90%;
+      border: 1px solid var(--zen-border); box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.9rem; }
+    th, td { padding: 12px; border-bottom: 1px solid var(--zen-border); text-align: left; font-weight: 500; }
+    th { color: #666; background: #f9f8f6; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <!-- 登入與註冊 Modal -->
+  <div id="auth-modal">
+    <div class="auth-box">
+      <div style="font-size: 2.2rem; color: var(--zen-green); margin-bottom: 10px;"><i class="fa-solid fa-torii-gate"></i></div>
+      <h2 id="auth-title" style="font-size: 1.3rem; font-weight: 700; margin-bottom: 14px;">和風日語線上學習</h2>
+      
+      <div id="auth-form-container" style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+        <div id="nickname-group" style="display: none; width: 100%;">
+          <input type="text" id="auth-nickname" class="input-field" placeholder="請輸入您的遊戲暱稱" style="max-width: 100%;">
+        </div>
+        <input type="email" id="auth-email" class="input-field" placeholder="電子郵件 (Email)" style="max-width: 100%;">
+        <input type="password" id="auth-password" class="input-field" placeholder="密碼 (Password)" style="max-width: 100%;">
+
+        <button class="btn-zen" id="auth-submit-btn" onclick="handleAuthSubmit()" style="width: 100%; margin-top: 8px;">登入系統</button>
+        
+        <p id="auth-switch-text" style="margin-top: 14px; font-weight: 600; font-size: 0.85rem; color: #666; cursor: pointer;" onclick="toggleAuthMode()">
+          還沒有帳號？點此免費註冊
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 頂部狀態列 -->
+  <header>
+    <div class="logo"><i class="fa-solid fa-torii-gate"></i> 和風日語</div>
+    <div class="status-bar">
+      <button class="btn-zen btn-secondary" id="layout-toggle-btn" onclick="toggleLayoutMode()" style="padding: 6px 10px; font-size: 0.8rem;" title="切換網頁/手機版">
+        <i class="fa-solid fa-mobile-screen"></i> <span id="layout-btn-text">手機板</span>
+      </button>
+      <div class="status-item" style="color: var(--zen-green); font-size: 0.85rem;"><i class="fa-solid fa-user"></i> <span id="current-user-tag">未登入</span></div>
+      <div class="status-item xp" title="總經驗值"><i class="fa-solid fa-bolt"></i> <span id="xp-count">0 XP</span></div>
+      <button class="btn-zen btn-secondary" style="padding: 6px 10px; font-size: 0.8rem;" onclick="handleLogout()">登出</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('study')"><i class="fa-solid fa-book-open"></i> 學習</button>
+      <button class="tab-btn" onclick="switchTab('quiz')"><i class="fa-solid fa-gamepad"></i> 測驗</button>
+      <button class="tab-btn" onclick="switchTab('badges')"><i class="fa-solid fa-award"></i> 徽章</button>
+      <button class="tab-btn" onclick="switchTab('enterprise')"><i class="fa-solid fa-trophy"></i> 排行</button>
+      <button class="tab-btn" onclick="switchTab('database')"><i class="fa-solid fa-list-check"></i> 單字庫</button>
+    </div>
+
+    <!-- 1. 卡牌學習區 -->
+    <div id="view-study" class="view active">
+      <div class="card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+        <div>
+          <h2 style="font-size: 1.2rem; font-weight: 700;">🍵 每日日語單字特訓</h2>
+          <p style="color: #666; font-size: 0.85rem;">點擊喇叭聆聽發音，透過情境例句扎實掌握。</p>
+        </div>
+        <button class="btn-zen" onclick="loadStudyCards()" style="padding: 8px 14px; font-size: 0.9rem;"><i class="fa-solid fa-shuffle"></i> 換一批</button>
+      </div>
+
+      <div id="hero-card-container"></div>
+      <div class="dots-container" id="pagination-dots"></div>
+
+      <div style="display: flex; justify-content: space-between; margin-top: 16px;">
+        <button class="btn-zen btn-secondary" onclick="changeCardIndex(-1)" style="padding: 8px 14px; font-size: 0.9rem;"><i class="fa-solid fa-arrow-left"></i> 上一張</button>
+        <button class="btn-zen btn-secondary" onclick="changeCardIndex(1)" style="padding: 8px 14px; font-size: 0.9rem;">下一張 <i class="fa-solid fa-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- 2. 闖關測驗區 -->
+    <div id="view-quiz" class="view">
+      <div class="card">
+        <div id="quiz-start-screen" style="text-align: center; padding: 20px 0;">
+          <div style="font-size: 3rem; color: var(--zen-green); margin-bottom: 16px;"><i class="fa-solid fa-scroll"></i></div>
+          <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 8px;">準備好進行日語能力檢定了嗎？</h2>
+          <p style="color: #666; font-size: 0.9rem; margin-bottom: 16px;">完成 10 道測驗題，累積經驗值與解鎖成就：</p>
+          <button class="btn-zen" onclick="startQuiz()" style="font-size: 1rem; width: 80%; max-width: 240px;"><i class="fa-solid fa-play"></i> 開始測驗</button>
+        </div>
+
+        <div id="quiz-question-screen" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; font-weight: 600; color: #666; font-size: 0.9rem;">
+            <span id="quiz-progress-text">題目 1 / 10</span>
+            <span style="color: var(--zen-gold);" id="quiz-lvl-badge">Level 1</span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="quiz-progress-fill"></div>
+          </div>
+
+          <div style="display: flex; justify-content: center; align-items: center; gap: 12px;">
+            <div class="quiz-word-display" id="quiz-word-el">Loading...</div>
+            <button class="audio-btn" onclick="speakCurrentWord()"><i class="fa-solid fa-volume-high"></i></button>
+          </div>
+
+          <div class="options-grid" id="quiz-options-container"></div>
+        </div>
+
+        <div id="quiz-result-screen" style="display: none; text-align: center; padding: 20px 0;">
+          <div style="font-size: 4rem; color: var(--zen-gold); margin-bottom: 16px;"><i class="fa-solid fa-award"></i></div>
+          <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 8px;">測驗完成，成績已同步至雲端！</h2>
+          <p id="quiz-score-display" style="font-size: 1.1rem; font-weight: 600; color: var(--zen-dark); margin-bottom: 20px;"></p>
+          <button class="btn-zen" onclick="resetQuiz()"><i class="fa-solid fa-rotate-right"></i> 再挑戰一次</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 成就徽章牆區 -->
+    <div id="view-badges" class="view">
+      <div class="card">
+        <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 6px;"><i class="fa-solid fa-award" style="color: var(--zen-gold);"></i> 禪心修行徽章牆</h2>
+        <p style="color: #666; font-size: 0.85rem; margin-bottom: 16px;">記錄您每日持續登入與完美滿分答題的榮譽足跡。</p>
+
+        <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 10px; color: var(--zen-dark);">🔥 連續登入修行</h3>
+        <div class="badge-grid" id="login-badges-container"></div>
+
+        <h3 style="font-size: 1rem; font-weight: 700; margin: 20px 0 10px 0; color: var(--zen-dark);">👑 完美答題通關</h3>
+        <div class="badge-grid" id="perfect-badges-container"></div>
+      </div>
+    </div>
+
+    <!-- 4. 戰情排行榜 -->
+    <div id="view-enterprise" class="view">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h2 style="font-size: 1.2rem; font-weight: 700;"><i class="fa-solid fa-medal" style="color: var(--zen-gold);"></i> 雲端修行排行榜</h2>
+        </div>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>修行者</th>
+                <th>等級</th>
+                <th>得分</th>
+                <th>正確率</th>
+                <th>時間</th>
+              </tr>
+            </thead>
+            <tbody id="enterprise-history-tbody">
+              <tr><td colspan="5" style="text-align: center; color: #666;">載入雲端排行榜中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. 單字庫完整檢索 -->
+    <div id="view-database" class="view">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+          <h3 style="font-size: 1.1rem; font-weight: 700;">📚 單字庫完整檢索 (<span id="db-count-label">0</span>)</h3>
+          <input type="text" id="db-search-input" placeholder="搜尋單字或釋義..." oninput="onSearchInput()" class="input-field" style="margin: 0; max-width: 200px;">
+        </div>
+        <div id="db-scroll-container" style="overflow-y: auto; max-height: 500px;" onscroll="checkScrollBottom()">
+          <table>
+            <thead>
+              <tr>
+                <th>單字 (word)</th>
+                <th>詞性/釋義 (pos / translation)</th>
+                <th>等級 (level)</th>
+                <th>例句 (sentence / sentence_zh)</th>
+              </tr>
+            </thead>
+            <tbody id="db-tbody"></tbody>
+          </table>
+          <div id="db-loading-tip" style="text-align: center; padding: 12px; color: #666; font-size: 0.8rem;">向下滾動載入更多單字...</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="feedback-footer" id="feedback-footer">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="font-size: 1.8rem;" id="feedback-icon"><i class="fa-solid fa-circle-check"></i></div>
+      <div>
+        <h3 id="feedback-title" style="font-size: 1.1rem; font-weight: 700;">太棒了！</h3>
+        <p id="feedback-detail" style="font-size: 0.85rem;"></p>
+      </div>
+    </div>
+    <div id="countdown-timer-text" style="font-size: 1rem; font-weight: 600;">3 秒後自動下一題...</div>
+  </div>
+
+  <!-- Firebase 核心及應用程式邏輯 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getDatabase, ref, set, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyChoW3RBQwOf1wktbvo9i72Rb_ZBujgC-8",
+      authDomain: "japanesetutor-364a0.firebaseapp.com",
+      databaseURL: "https://japanesetutor-364a0-default-rtdb.firebaseio.com",
+      projectId: "japanesetutor-364a0",
+      storageBucket: "japanesetutor-364a0.firebasestorage.app",
+      messagingSenderId: "462408678447",
+      appId: "1:462408678447:web:33c361eeb573ef1d131ada",
+      measurementId: "G-Q0QGZ9GXCL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    let masterVocabDB = [];
+    let currentStudyPool = [];
+    let currentCardIndex = 0;
+    let currentUserProfile = { uid: '', email: '', nickname: '修行者', xp: 0, loginDays: 1, perfectCount: 0 };
+    let isRegisterMode = false;
+    let countdownTimer = null;
+    let displayLimit = 50;
+
+    let isMobileView = localStorage.getItem('zen_jp_mobile_view') === 'true';
+    applyLayoutMode();
+
+    window.toggleLayoutMode = function() {
+      isMobileView = !isMobileView;
+      localStorage.setItem('zen_jp_mobile_view', isMobileView);
+      applyLayoutMode();
+    };
+
+    function applyLayoutMode() {
+      const btnText = document.getElementById('layout-btn-text');
+      if (isMobileView) {
+        document.body.classList.add('mobile-mode');
+        if (btnText) btnText.innerText = '網頁版';
+      } else {
+        document.body.classList.remove('mobile-mode');
+        if (btnText) btnText.innerText = '手機板';
+      }
+    }
+
+    window.toggleAuthMode = function() {
+      isRegisterMode = !isRegisterMode;
+      document.getElementById('auth-title').innerText = isRegisterMode ? '註冊新帳號' : '和風日語線上學習';
+      document.getElementById('nickname-group').style.display = isRegisterMode ? 'block' : 'none';
+      document.getElementById('auth-submit-btn').innerText = isRegisterMode ? '立即註冊並登入' : '登入系統';
+      document.getElementById('auth-switch-text').innerText = isRegisterMode ? '已有帳號？點此直接登入' : '還沒有帳號？點此免費註冊';
+    };
+
+    window.handleAuthSubmit = function() {
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      const nickname = document.getElementById('auth-nickname').value.trim();
+
+      if (!email || !password) {
+        alert("請填寫完整的電子郵件與密碼！");
+        return;
+      }
+
+      if (isRegisterMode) {
+        if (!nickname) {
+          alert("註冊時請輸入您的暱稱！");
+          return;
+        }
+        createUserWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            set(ref(db, 'users/' + user.uid), {
+              nickname: nickname,
+              email: email,
+              xp: 0,
+              loginDays: 1,
+              perfectCount: 0,
+              lastLoginDate: new Date().toDateString()
+            });
+          })
+          .catch((error) => { alert("註冊失敗：" + error.message); });
+      } else {
+        signInWithEmailAndPassword(auth, email, password)
+          .catch((error) => { alert("登入失敗：" + error.message); });
+      }
+    };
+
+    window.handleLogout = function() {
+      signOut(auth).then(() => { location.reload(); });
+    };
+
+    onAuthStateChanged(auth, (user) => {
+      const modal = document.getElementById('auth-modal');
+      if (user) {
+        modal.style.display = 'none';
+        const userRef = ref(db, 'users/' + user.uid);
+        onValue(userRef, (snapshot) => {
+          const data = snapshot.val();
+          currentUserProfile.uid = user.uid;
+          currentUserProfile.email = user.email;
+          
+          const todayStr = new Date().toDateString();
+          let loginDays = data?.loginDays || 1;
+          let lastLogin = data?.lastLoginDate || "";
+
+          if (lastLogin !== todayStr) {
+            const lastDateObj = new Date(lastLogin);
+            const todayObj = new Date(todayStr);
+            const diffTime = todayObj - lastDateObj;
+            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 1) {
+              loginDays += 1;
+            } else if (diffDays > 1) {
+              loginDays = 1;
+            }
+            update(userRef, { loginDays: loginDays, lastLoginDate: todayStr });
+          }
+
+          currentUserProfile.nickname = data?.nickname || user.email.split('@')[0];
+          currentUserProfile.xp = data?.xp || 0;
+          currentUserProfile.loginDays = loginDays;
+          currentUserProfile.perfectCount = data?.perfectCount || 0;
+
+          document.getElementById('current-user-tag').innerText = currentUserProfile.nickname;
+          document.getElementById('xp-count').innerText = currentUserProfile.xp + " XP";
+          
+          renderBadges();
+        }, { onlyOnce: true });
+
+        initDatabase();
+      } else {
+        modal.style.display = 'flex';
+      }
+    });
+
+    function speakWord(word) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.lang = 'ja-JP';
+        utterance.rate = 0.9;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+    window.speakWord = speakWord;
+
+    async function initDatabase() {
+      try {
+        const response = await fetch('./vocab.json');
+        if (!response.ok) throw new Error("vocab.json not found");
+        const rawData = await response.json();
+        
+        masterVocabDB = rawData.map((item, index) => ({
+          id: item.id || (index + 1),
+          word: item.word || "",
+          pos: item.pos || "",
+          level: item.level || 1,
+          translation: item.translation || "",
+          sentence: item.sentence || "",
+          sentence_zh: item.sentence_zh || ""
+        }));
+      } catch (err) {
+        console.warn("載入 vocab.json 失敗，使用內建模擬日文單字：", err);
+        masterVocabDB = [
+          { id: 1, word: "先生", pos: "名詞", level: 1, translation: "老師、先生", sentence: "田中先生は日本語の先生です。", sentence_zh: "田中先生是日語老師。" },
+          { id: 2, word: "勉強", pos: "動詞", level: 1, translation: "學習、功課", sentence: "毎日日本語を勉強します。", sentence_zh: "每天學習日語。" },
+          { id: 3, word: "綺麗", pos: "形容動詞", level: 2, translation: "漂亮、乾淨", sentence: "この庭はとても綺麗です。", sentence_zh: "這個庭院非常漂亮。" }
+        ];
+      }
+
+      document.getElementById('db-count-label').innerText = masterVocabDB.length;
+      loadStudyCards();
+      renderDatabase();
+      listenEnterpriseHistory();
+    }
+
+    window.switchTab = function(tabId) {
+      ['study', 'quiz', 'badges', 'enterprise', 'database'].forEach((id, idx) => {
+        document.getElementById(`view-${id}`).classList.toggle('active', id === tabId);
+        document.querySelectorAll('.tab-btn')[idx].classList.toggle('active', id === tabId);
+      });
+      if (tabId === 'study') loadStudyCards();
+      if (tabId === 'badges') renderBadges();
+      if (tabId === 'database') {
+        displayLimit = 50;
+        renderDatabase();
+      }
+    };
+
+    function getRandomItems(arr, count) {
+      return [...arr].sort(() => 0.5 - Math.random()).slice(0, count);
+    }
+
+    window.loadStudyCards = function() {
+      if (masterVocabDB.length === 0) return;
+      currentStudyPool = getRandomItems(masterVocabDB, Math.min(10, masterVocabDB.length));
+      currentCardIndex = 0;
+      renderStudyCard();
+    };
+
+    function renderStudyCard() {
+      if (currentStudyPool.length === 0) return;
+      const item = currentStudyPool[currentCardIndex];
+      const container = document.getElementById('hero-card-container');
+
+      const posTag = item.pos ? `[${item.pos}] ` : '';
+
+      container.innerHTML = `
+        <div class="hero-card-viewport">
+          <div>
+            <div class="hero-word-header">
+              <span class="hero-word-title">${item.word}</span>
+              <button class="audio-btn" onclick="speakWord('${item.word}')"><i class="fa-solid fa-volume-high"></i></button>
+            </div>
+            <div class="hero-word-meaning">${posTag}${item.translation}</div>
+          </div>
+          <div class="hero-example-box">
+            <div style="font-weight: 600; font-size: 1rem; color: var(--zen-dark);">"${item.example || '例文なし'}"</div>
+            <div style="color: #666; font-weight: 500; margin-top: 4px; font-size: 0.85rem;">"${item.sentence_zh || '暫無中文例句'}"</div>
+          </div>
+        </div>
+      `;
+
+      const dotsContainer = document.getElementById('pagination-dots');
+      dotsContainer.innerHTML = '';
+      currentStudyPool.forEach((_, idx) => {
+        dotsContainer.innerHTML += `<div class="dot ${idx === currentCardIndex ? 'active' : ''}" onclick="goToCard(${idx})">${idx + 1}</div>`;
+      });
+    }
+
+    window.changeCardIndex = function(delta) {
+      const newIndex = currentCardIndex + delta;
+      if (newIndex >= 0 && newIndex < currentStudyPool.length) {
+        currentCardIndex = newIndex;
+        renderStudyCard();
+      }
+    };
+
+    window.goToCard = function(index) {
+      currentCardIndex = index;
+      renderStudyCard();
+    };
+
+    let quizQuestions = [];
+    let currentQIdx = 0;
+    let currentScore = 0;
+
+    window.startQuiz = function() {
+      quizQuestions = getRandomItems(masterVocabDB, Math.min(10, masterVocabDB.length));
+      currentQIdx = 0;
+      currentScore = 0;
+
+      document.getElementById('quiz-start-screen').style.display = 'none';
+      document.getElementById('quiz-result-screen').style.display = 'none';
+      document.getElementById('quiz-question-screen').style.display = 'block';
+      renderQuizQuestion();
+    };
+
+    function renderQuizQuestion() {
+      if (currentQIdx >= quizQuestions.length) {
+        finishQuiz();
+        return;
+      }
+
+      const q = quizQuestions[currentQIdx];
+      document.getElementById('quiz-progress-text').innerText = `題目 ${currentQIdx + 1} / ${quizQuestions.length}`;
+      document.getElementById('quiz-progress-fill').style.width = `${((currentQIdx + 1) / quizQuestions.length) * 100}%`;
+      document.getElementById('quiz-word-el').innerText = q.word;
+
+      speakWord(q.word);
+
+      const wrongPool = masterVocabDB.filter(item => item.word !== q.word);
+      const wrongs = getRandomItems(wrongPool, 3);
+      const options = getRandomItems([q, ...wrongs], 4);
+
+      const container = document.getElementById('quiz-options-container');
+      container.innerHTML = '';
+      options.forEach((opt, idx) => {
+        const fullMeaning = (opt.pos ? `[${opt.pos}] ` : '') + opt.translation;
+        const correctMeaning = (q.pos ? `[${q.pos}] ` : '') + q.translation;
+        container.innerHTML += `
+          <button class="option-btn" onclick="checkAnswer(this, '${fullMeaning.replace(/'/g, "\\'")}', '${correctMeaning.replace(/'/g, "\\'")}')">
+            <span>(${idx + 1}) ${fullMeaning}</span>
+            <i class="fa-regular fa-circle"></i>
+          </button>
+        `;
+      });
+    }
+
+    window.speakCurrentWord = function() {
+      const q = quizQuestions[currentQIdx];
+      if (q) speakWord(q.word);
+    };
+
+    window.checkAnswer = function(btn, selected, correct) {
+      const isCorrect = selected === correct;
+      document.querySelectorAll('.option-btn').forEach(b => b.style.pointerEvents = 'none');
+
+      if (isCorrect) {
+        btn.classList.add('correct');
+        btn.querySelector('i').className = 'fa-solid fa-circle-check';
+        currentScore++;
+        showFeedback(true, "正解！太棒了！");
+      } else {
+        btn.classList.add('wrong');
+        btn.querySelector('i').className = 'fa-solid fa-circle-xmark';
+        showFeedback(false, `正確解答是：${correct}`);
+      }
+
+      let timeLeft = 3;
+      const timerText = document.getElementById('countdown-timer-text');
+      timerText.innerText = `${timeLeft} 秒後自動下一題...`;
+
+      if (countdownTimer) clearInterval(countdownTimer);
+      countdownTimer = setInterval(() => {
+        timeLeft--;
+        if (timeLeft > 0) {
+          timerText.innerText = `${timeLeft} 秒後自動下一題...`;
+        } else {
+          clearInterval(countdownTimer);
+          nextQuizQuestion();
+        }
+      }, 1000);
+    };
+
+    function showFeedback(isCorrect, text) {
+      const footer = document.getElementById('feedback-footer');
+      footer.className = `feedback-footer show ${isCorrect ? 'correct-bg' : 'wrong-bg'}`;
+      document.getElementById('feedback-icon').innerHTML = isCorrect ? `<i class="fa-solid fa-circle-check"></i>` : `<i class="fa-solid fa-circle-xmark"></i>`;
+      document.getElementById('feedback-title').innerText = isCorrect ? "見事です！" : "惜しい！";
+      document.getElementById('feedback-detail').innerText = text;
+    }
+
+    function nextQuizQuestion() {
+      if (countdownTimer) clearInterval(countdownTimer);
+      document.getElementById('feedback-footer').classList.remove('show');
+      currentQIdx++;
+      renderQuizQuestion();
+    }
+
+    function finishQuiz() {
+      document.getElementById('quiz-question-screen').style.display = 'none';
+      document.getElementById('quiz-result-screen').style.display = 'block';
+
+      const totalQ = quizQuestions.length;
+      const pct = Math.round((currentScore / totalQ) * 100);
+      document.getElementById('quiz-score-display').innerText = `${currentUserProfile.nickname} 測驗得分：${currentScore} / ${totalQ} (${pct}%)`;
+
+      const earnedXP = currentScore * 10;
+      currentUserProfile.xp += earnedXP;
+      document.getElementById('xp-count').innerText = currentUserProfile.xp + " XP";
+
+      if (currentScore === totalQ) {
+        currentUserProfile.perfectCount += 1;
+      }
+
+      update(ref(db, 'users/' + currentUserProfile.uid), {
+        xp: currentUserProfile.xp,
+        perfectCount: currentUserProfile.perfectCount
+      });
+
+      push(ref(db, 'quiz_history'), {
+        user: currentUserProfile.nickname,
+        date: new Date().toLocaleString(),
+        score: `${currentScore}/${totalQ}`,
+        pct: pct,
+        level: 1,
+        timestamp: Date.now()
+      });
+    }
+
+    window.resetQuiz = function() {
+      document.getElementById('quiz-result-screen').style.display = 'none';
+      document.getElementById('quiz-start-screen').style.display = 'block';
+    };
+
+    function renderBadges() {
+      const loginDays = currentUserProfile.loginDays || 1;
+      const perfectCount = currentUserProfile.perfectCount || 0;
+
+      const loginBadgesConfig = [
+        { days: 1, title: "初入禪門", desc: "完成首次登入", icon: "fa-seedling" },
+        { days: 3, title: "持續修行", desc: "連續登入 3 天", icon: "fa-spa" },
+        { days: 7, title: "心如止水", desc: "連續登入 7 天", icon: "fa-fire" },
+        { days: 30, title: "月華大師", desc: "連續登入 30 天", icon: "fa-award" }
+      ];
+
+      const loginContainer = document.getElementById('login-badges-container');
+      loginContainer.innerHTML = loginBadgesConfig.map(b => {
+        const unlocked = loginDays >= b.days;
+        return `
+          <div class="achievement-badge ${unlocked ? '' : 'locked'}">
+            <div class="badge-icon-box"><i class="fa-solid ${b.icon}"></i></div>
+            <div class="badge-title">${b.title}</div>
+            <div class="badge-desc">${b.desc}</div>
+            <div style="font-size: 0.7rem; font-weight: 600; color: ${unlocked ? 'var(--zen-green)' : '#888'}; margin-top: auto;">
+              ${unlocked ? '✅ 已解鎖' : `🔒 需登入 ${b.days} 天 (目前 ${loginDays})`}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const perfectBadgesConfig = [
+        { count: 1, title: "初次滿分", desc: "達成 1 次 10 題全對", icon: "fa-star" },
+        { count: 3, title: "滿分達人", desc: "達成 3 次全對", icon: "fa-medal" },
+        { count: 5, title: "精進不懈", desc: "達成 5 次全對", icon: "fa-trophy" },
+        { count: 10, title: "日語宗師", desc: "達成 10 次全對", icon: "fa-crown" }
+      ];
+
+      const perfectContainer = document.getElementById('perfect-badges-container');
+      perfectContainer.innerHTML = perfectBadgesConfig.map(b => {
+        const unlocked = perfectCount >= b.count;
+        return `
+          <div class="achievement-badge ${unlocked ? '' : 'locked'}">
+            <div class="badge-icon-box"><i class="fa-solid ${b.icon}"></i></div>
+            <div class="badge-title">${b.title}</div>
+            <div class="badge-desc">${b.desc}</div>
+            <div style="font-size: 0.7rem; font-weight: 600; color: ${unlocked ? 'var(--zen-green)' : '#888'}; margin-top: auto;">
+              ${unlocked ? '✅ 已解鎖' : `🔒 需全對 ${b.count} 次 (目前 ${perfectCount})`}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function listenEnterpriseHistory() {
+      const historyRef = ref(db, 'quiz_history');
+      onValue(historyRef, (snapshot) => {
+        const data = snapshot.val();
+        const tbody = document.getElementById('enterprise-history-tbody');
+        if (!tbody) return;
+
+        if (!data) {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #666;">尚無測驗紀錄</td></tr>`;
+          return;
+        }
+
+        const historyArray = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
+        tbody.innerHTML = historyArray.slice(0, 20).map(h => `
+          <tr>
+            <td>${h.user}</td>
+            <td>Level ${h.level || 1}</td>
+            <td>${h.score}</td>
+            <td style="color: var(--zen-green); font-weight: 600;">${h.pct}%</td>
+            <td style="color: #666;">${h.date}</td>
+          </tr>
+        `).join('');
+      });
+    }
+
+    window.onSearchInput = function() {
+      displayLimit = 50;
+      renderDatabase();
+    };
+
+    window.checkScrollBottom = function() {
+      const container = document.getElementById('db-scroll-container');
+      if (!container) return;
+      if (container.scrollTop + container.clientHeight >= container.scrollHeight - 30) {
+        displayLimit += 50;
+        renderDatabase();
+      }
+    };
+
+    window.renderDatabase = function() {
+      const searchInput = document.getElementById('db-search-input');
+      const query = searchInput && searchInput.value ? String(searchInput.value).toLowerCase() : "";
+      const tbody = document.getElementById('db-tbody');
+      const loadingTip = document.getElementById('db-loading-tip');
+      if (!tbody) return;
+
+      const filteredAll = masterVocabDB.filter(item => {
+        const wordStr = String(item.word || "").toLowerCase();
+        const translationStr = String(item.translation || "").toLowerCase();
+        const posStr = String(item.pos || "").toLowerCase();
+        return wordStr.includes(query) || translationStr.includes(query) || posStr.includes(query);
+      });
+
+      const filtered = filteredAll.slice(0, displayLimit);
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #666;">沒有找到符合的日語單字</td></tr>`;
+        if (loadingTip) loadingTip.style.display = 'none';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => `
+        <tr>
+          <td style="color: var(--zen-green); font-weight: 600;">${item.word || ''}</td>
+          <td>[${item.pos || '-'}] ${item.translation || ''}</td>
+          <td>L${item.level || 1}</td>
+          <td style="font-size: 0.85rem; color: #555;">
+            <div>${item.sentence || ''}</div>
+            <div style="color: #777; margin-top: 2px;">${item.sentence_zh || ''}</div>
+          </td>
+        </tr>
+      `).join('');
+
+      if (loadingTip) {
+        loadingTip.style.display = displayLimit >= filteredAll.length ? 'none' : 'block';
+        loadingTip.innerText = displayLimit >= filteredAll.length ? '— 已顯示全部單字 —' : '向下滾動載入更多單字...';
+      }
+    };
+  </script>
+</body>
+</html>
